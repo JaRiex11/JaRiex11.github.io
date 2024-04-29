@@ -24,5 +24,3 @@ class Layer {
 onload = () => {
     new App(document.querySelector('body'));
 }
-
-//3:48 https://www.youtube.com/watch?v=XgXGXEqQJqI
