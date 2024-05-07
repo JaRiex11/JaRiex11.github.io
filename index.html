@@ -4,21 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyGame</title>
+    <title>Bloodline</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div class="game">
+    
+
+    <div id="container">
+        
+        <h1>Название игры</h1>
+        <button id="newGame">Новая игра</button>
+        <button id="continue">Продолжить</button>
+        <a href="settings.html">Настройки(ссылка)</a>
+        <button id="settings">Настройки(кнопка)</button>
+        <button id="quit">Выход</button>
+    </div>
+    <div class="preloader_scene">
+        <div class="preloader_block">a1</div>
+        <div class="preloader_block" id="pre_bl2">a2</div>
+    </div>
+    
+    <!--<div class="game">
         <div id="player"></div>
         <div class="weapon bat"></div>
         <div class="pistol"></div>
         <div class="silencePistol"></div>
         <div class="bullet"></div>
-    </div>
-
+    </div> -->
+    <script src="js/switch.js"></script>
     <script type="module" src="js/app.js"></script>
     <script src="js/script.js"></script>
+    
 </body>
 
 </html>
