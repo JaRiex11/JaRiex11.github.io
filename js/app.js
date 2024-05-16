@@ -1,6 +1,6 @@
 class App {
     constructor(container) {
-        this.layer = new Laye(container);
+        this.layer = new Layer(container);
     }
 }
 

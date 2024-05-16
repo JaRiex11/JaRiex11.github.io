@@ -6,10 +6,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function switchToSettings() {
-        setTimeout(settings, 1000)
+
+        document.getElementsByClassName('preloader_block')[0].classList.add('anim2');
+        setTimeout(settings, 1000);
     }
 
     function settings() {
         top.location.href = 'settings.html';
+    }
+
+    function okayKlick() {
+
     }
 });
