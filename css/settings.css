@@ -1,4 +1,4 @@
-#container {
+#container-settings {
     background-color: bisque;
     width: 100%;
     height: 100%;
@@ -10,13 +10,13 @@
     grid-template-rows: 1fr 200px 2fr;
 }
 
-#button1 {
+#sett-button1 {
     grid-area: 1/2/1/2;
     align-self: self-end;
 
 }
 
-#button2 {
+#sett-button2 {
     grid-area: 3/2/3/2;
     align-self: self-start;
 }
