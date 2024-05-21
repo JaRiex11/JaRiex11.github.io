@@ -3,6 +3,48 @@ document.addEventListener("DOMContentLoaded", () => {
     function init() {
         document.getElementById("settings").addEventListener("click", switchToSettings);
         //document.getElementById("color").addEventListener("click", okayKlick);
+        document.getElementById("quit").addEventListener("click", closeGame);
+    }
+
+    function switchToMenu() {
+        animation();
+        setTimeout(menu, 1000);
+    }
+
+    function menu() {
+        document.body.removeChild(document.getElementsByClassName('notMenu')[0]);
+        // создание контейнера
+        let menu = document.createElement('div');
+        menu.setAttribute('id', 'container');
+        // создание заголовка
+        let h1 = document.createElement('h1');
+        h1.setAttribute('id', 'name');
+        // создание кнопки "Новая игра"
+        let but1 = document.createElement('button');
+        but1.setAttribute('id', 'newGame');
+        but1.textContent = 'Новая игра';
+        // создание кнопки "Продолжить"
+        let but2 = document.createElement('button');
+        but2.setAttribute('id', 'continue');
+        but2.textContent = 'Продолжить';
+        // создание кнопки "Настройки"
+        let but3 = document.createElement('button');
+        but3.setAttribute('id', 'settings');
+        but3.textContent = 'Настройки';
+
+        but3.addEventListener("click", switchToSettings);
+        // создание кнопки "Выход"
+        let but4 = document.createElement('button');
+        but4.setAttribute('id', 'quit');
+        but4.textContent = 'Выход';
+
+        menu.appendChild(h1);
+        menu.appendChild(but1);
+        menu.appendChild(but2);
+        menu.appendChild(but3);
+        menu.appendChild(but4);
+
+        document.body.appendChild(menu);
     }
 
     function switchToSettings() {
@@ -45,56 +87,20 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(child);
     }
 
-    function switchToMenu() {
+    function closeGame() {
         animation();
-        setTimeout(menu, 1000);
-    }
-
-    function menu() {
-        document.body.removeChild(document.getElementsByClassName('notMenu')[0]);
-        // создание контейнера
-        let menu = document.createElement('div');
-        menu.setAttribute('id', 'container');
-        // создание заголовка
-        let h1 = document.createElement('h1');
-        h1.setAttribute('id', 'name');
-        // создание кнопки "Новая игра"
-        let but1 = document.createElement('button');
-        but1.setAttribute('id', 'newGame');
-        but1.textContent = 'Новая игра';
-        // создание кнопки "Продолжить"
-        let but2 = document.createElement('button');
-        but2.setAttribute('id', 'continue');
-        but2.textContent = 'Продолжить';
-        // создание кнопки "Настройки"
-        let but3 = document.createElement('button');
-        but3.setAttribute('id', 'settings');
-        but3.textContent = 'Настройки';
-        but3.addEventListener("click", switchToSettings);
-        // создание кнопки "Выход"
-        let but4 = document.createElement('button');
-        but4.setAttribute('id', 'quit');
-        but4.textContent = 'Выход';
-
-        menu.appendChild(h1);
-        menu.appendChild(but1);
-        menu.appendChild(but2);
-        menu.appendChild(but3);
-        menu.appendChild(but4);
-
-        document.body.appendChild(menu);
+        setTimeout(function () {
+            window.close();
+        }, 1000)
     }
 
     function animation() {
         document.getElementsByClassName('preloader_block')[0].classList.remove('animation');
         document.getElementsByClassName('preloader_block')[0].style.display = 'block';
         document.getElementsByClassName('preloader_block')[0].classList.add('anim2');
-        setTimeout(anim2, 2000);
-    }
-
-    function anim2() {
-        document.getElementsByClassName('preloader_block')[0].style.display = 'none';
-        document.getElementsByClassName('preloader_block')[0].classList.remove('anim2');
-
+        setTimeout(function () {
+            document.getElementsByClassName('preloader_block')[0].style.display = 'none';
+            document.getElementsByClassName('preloader_block')[0].classList.remove('anim2');
+        }, 2000);
     }
 });

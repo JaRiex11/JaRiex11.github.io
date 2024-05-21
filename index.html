@@ -27,7 +27,13 @@
         <div id="sett-button2"> <button id="audio">Audio</button> </div>
     </div> -->
 
-    <audio autoplay="true" loop="true" src="/audio/music/Scattle_-_Flatline_Hotline_Miami_OST_70137762.mp3"></audio>
+    <video id="myaudio" controls="" loop="" autoplay="" name="media" preload="auto" hidden>
+        <source src="audio/music/Scattle_-_Flatline.mp3" type="audio/mp3">
+    </video>
+    <script>
+        var audio = document.getElementById("myaudio");
+        audio.volume = 0.5;
+    </script>
 
     <div class="preloader_scene">
         <div class="preloader_block animation"></div>
