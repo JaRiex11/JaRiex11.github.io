@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener('load', init);
     function init() {
+        document.getElementById("newGame").addEventListener("click", switchToNewGame);
         document.getElementById("settings").addEventListener("click", switchToSettings);
         //document.getElementById("color").addEventListener("click", okayKlick);
         document.getElementById("quit").addEventListener("click", closeGame);
@@ -45,6 +46,20 @@ document.addEventListener("DOMContentLoaded", () => {
         menu.appendChild(but4);
 
         document.body.appendChild(menu);
+    }
+
+    function switchToNewGame() {
+        animation();
+        setTimeout(newGame, 1000);
+    }
+
+    function newGame() {
+        document.body.removeChild(document.getElementById('container'));
+        //создание контейнера
+        let child = document.createElement('div');
+        child.setAttribute('id', 'container-newGame');
+        child.classList.add('notMenu');
+        window.location.href = "../data/tutorial.html";
     }
 
     function switchToSettings() {
