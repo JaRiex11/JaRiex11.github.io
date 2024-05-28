@@ -8,9 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function init() {
         canvas.setAttribute('width', window.innerWidth);
         canvas.setAttribute('heigth', window.innerHeight);
-        var img = new Image();
 
-        var img = new Image();
+        /*var img = new Image();
 
         // Привязываем функцию к событию onload
         // Это указывает браузеру, что делать, когда изображение загружено
@@ -19,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         // Загружаем файл изображения
-        img.src = "../img/bat.jpg";
+        img.src = "../img/bat.jpg";*/
     }
 
     function resize() {

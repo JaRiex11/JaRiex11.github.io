@@ -23,21 +23,34 @@ document.addEventListener("DOMContentLoaded", () => {
         // создание кнопки "Новая игра"
         let but1 = document.createElement('button');
         but1.setAttribute('id', 'newGame');
+        //для firefox`a
+        but1.setAttribute('autocomplete', 'off');
+        //
         but1.textContent = 'Новая игра';
+        but1.addEventListener("click", switchToNewGame);
         // создание кнопки "Продолжить"
         let but2 = document.createElement('button');
         but2.setAttribute('id', 'continue');
         but2.textContent = 'Продолжить';
+        //для firefox`a
+        but2.setAttribute('autocomplete', 'off');
+        //
         // создание кнопки "Настройки"
         let but3 = document.createElement('button');
         but3.setAttribute('id', 'settings');
         but3.textContent = 'Настройки';
+        //для firefox`a
+        but3.setAttribute('autocomplete', 'off');
+        //
 
         but3.addEventListener("click", switchToSettings);
         // создание кнопки "Выход"
         let but4 = document.createElement('button');
         but4.setAttribute('id', 'quit');
         but4.textContent = 'Выход';
+        //для firefox`a
+        but4.setAttribute('autocomplete', 'off');
+        //
 
         menu.appendChild(h1);
         menu.appendChild(but1);
