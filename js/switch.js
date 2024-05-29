@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("settings").addEventListener("click", switchToSettings);
         //document.getElementById("color").addEventListener("click", okayKlick);
         document.getElementById("quit").addEventListener("click", closeGame);
+        /*var audio = new Audio('..audio/music/Scattle_-_Flatline.mp3');
+        audio.play();*/
     }
 
     function switchToMenu() {
