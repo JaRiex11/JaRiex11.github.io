@@ -17,7 +17,7 @@ let mousePresses = {};
 let mouseX, mouseY;
 let lockAnimation = false;
 let pl;
-let enemyList = [];
+let enemyList = {};
 let imgCounter = 2; // количество рисунков
 let testCounter = 1;
 
@@ -39,10 +39,8 @@ class player extends entity {
         this.imageY = playerImageY;
         this.imgWidth = FRAME_WIDTH;
         this.imgHeight = FRAME_HEIGHT;
-        this.collisionBox = new collisionBox(this.x, this.y, WIDTH / 4, HEIGHT / 2, this.angle);
-        // this.collisionOfWeapon = [
-
-        // ];
+        this.collisionBox = new collisionBox(this);
+        this.collisionOfWeapon = new hitbox(this, 0, 25, 30, 16);
     }
 
     attackOfBatonAnimation(frameCount) {
@@ -89,15 +87,14 @@ class enemy extends entity {
         this.imageY = enemyImageY;
         this.imgWidth = frameWidth;
         this.imgHeight = frameHeight;
-        this.collisionBox = new collisionBox(this.x, this.y, this.width, this.height, this.angle);
+        this.collisionBox = new collisionBox(this);
     }
 }
 
 class hitbox extends entity {
     constructor(pl, dx, dy, width, height) {
-        super(pl.x + dx, pl.y + dy, width, height, pl.angle);
-        this.pl = pl;
-        this.collisionBox = new collisionBox(this.pl.x + dx, this.pl.y + dy, width * SCALE, height * SCALE, pl.angle);
+        super(pl.x + dx/* + width / 2*/, pl.y + dy/* + height / 2*/, width, height, pl.angle);
+        this.collisionBox = new collisionBox(this);
     }
 }
 
@@ -109,28 +106,24 @@ class point {
 }
 
 class collisionBox {
-    constructor(x, y, width, height, angle) { //x, y, width, height, angle, isDeadly
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.angle = angle;
+    constructor(player/*, dx, dy*/) { //x, y, width, height, angle, isDeadly
+        this.pl = player;
     }
 
     collision(colBox2) {
         let res = false;
 
         let ps1 = [
-            new point(this.x - this.height * Math.sin(this.angle) / 2 - this.width * Math.cos(this.angle) / 2, this.y - this.height * Math.cos(this.angle) / 2 - this.width * Math.sin(this.angle) / 2),
-            new point(this.x + this.height * Math.sin(this.angle) / 2 - this.width * Math.cos(this.angle) / 2, this.y + this.height * Math.cos(this.angle) / 2 - this.width * Math.sin(this.angle) / 2),
-            new point(this.x + this.height * Math.sin(this.angle) / 2 + this.width * Math.cos(this.angle) / 2, this.y + this.height * Math.cos(this.angle) / 2 + this.width * Math.sin(this.angle) / 2),
-            new point(this.x - this.height * Math.sin(this.angle) / 2 + this.width * Math.cos(this.angle) / 2, this.y - this.height * Math.cos(this.angle) / 2 + this.width * Math.sin(this.angle) / 2)
+            new point(this.pl.x - this.pl.height * Math.sin(this.pl.angle) / 2 - this.pl.width * Math.cos(this.pl.angle) / 2, this.pl.y - this.pl.height * Math.cos(this.pl.angle) / 2 - this.pl.width * Math.sin(this.pl.angle) / 2),
+            new point(this.pl.x + this.pl.height * Math.sin(this.pl.angle) / 2 - this.pl.width * Math.cos(this.pl.angle) / 2, this.pl.y + this.pl.height * Math.cos(this.pl.angle) / 2 - this.pl.width * Math.sin(this.pl.angle) / 2),
+            new point(this.pl.x - this.pl.height * Math.sin(this.pl.angle) / 2 + this.pl.width * Math.cos(this.pl.angle) / 2, this.pl.y - this.pl.height * Math.cos(this.pl.angle) / 2 + this.pl.width * Math.sin(this.pl.angle) / 2),
+            new point(this.pl.x + this.pl.height * Math.sin(this.pl.angle) / 2 + this.pl.width * Math.cos(this.pl.angle) / 2, this.pl.y + this.pl.height * Math.cos(this.pl.angle) / 2 + this.pl.width * Math.sin(this.pl.angle) / 2)
         ];
         let ps2 = [
-            new point(colBox2.x - colBox2.height * Math.sin(colBox2.angle) / 2 - colBox2.width * Math.cos(colBox2.angle) / 2, colBox2.y - colBox2.height * Math.cos(colBox2.angle) / 2 - colBox2.width * Math.sin(colBox2.angle) / 2),
-            new point(colBox2.x + colBox2.height * Math.sin(colBox2.angle) / 2 - colBox2.width * Math.cos(colBox2.angle) / 2, colBox2.y + colBox2.height * Math.cos(colBox2.angle) / 2 - colBox2.width * Math.sin(colBox2.angle) / 2),
-            new point(colBox2.x + colBox2.height * Math.sin(colBox2.angle) / 2 + colBox2.width * Math.cos(colBox2.angle) / 2, colBox2.y + colBox2.height * Math.cos(colBox2.angle) / 2 + colBox2.width * Math.sin(colBox2.angle) / 2),
-            new point(colBox2.x - colBox2.height * Math.sin(colBox2.angle) / 2 + colBox2.width * Math.cos(colBox2.angle) / 2, colBox2.y - colBox2.height * Math.cos(colBox2.angle) / 2 + colBox2.width * Math.sin(colBox2.angle) / 2)
+            new point(colBox2.pl.x - colBox2.pl.height * Math.sin(colBox2.pl.angle) / 2 - colBox2.pl.width * Math.cos(colBox2.pl.angle) / 2, colBox2.pl.y - colBox2.pl.height * Math.cos(colBox2.pl.angle) / 2 - colBox2.pl.width * Math.sin(colBox2.pl.angle) / 2),
+            new point(colBox2.pl.x + colBox2.pl.height * Math.sin(colBox2.pl.angle) / 2 - colBox2.pl.width * Math.cos(colBox2.pl.angle) / 2, colBox2.pl.y + colBox2.pl.height * Math.cos(colBox2.pl.angle) / 2 - colBox2.pl.width * Math.sin(colBox2.pl.angle) / 2),
+            new point(colBox2.pl.x - colBox2.pl.height * Math.sin(colBox2.pl.angle) / 2 + colBox2.pl.width * Math.cos(colBox2.pl.angle) / 2, colBox2.pl.y - colBox2.pl.height * Math.cos(colBox2.pl.angle) / 2 + colBox2.pl.width * Math.sin(colBox2.pl.angle) / 2),
+            new point(colBox2.pl.x + colBox2.pl.height * Math.sin(colBox2.pl.angle) / 2 + colBox2.pl.width * Math.cos(colBox2.pl.angle) / 2, colBox2.pl.y + colBox2.pl.height * Math.cos(colBox2.pl.angle) / 2 + colBox2.pl.width * Math.sin(colBox2.pl.angle) / 2)
         ];
 
         for (let i = 1; i < 5; i++) {
@@ -249,11 +242,9 @@ loadImage();
 function moveCharacter(deltaX, deltaY) {
     //if (pl.x + deltaX > -FRAME_WIDTH / 2.0 && pl.x + WIDTH + deltaX < canvas.width) {
     pl.x += deltaX;
-    pl.collisionBox.x += deltaX;
     //}
     //if (pl.y + deltaY > -FRAME_HEIGHT / 2.0 && pl.y + HEIGHT + deltaY < canvas.height) {
     pl.y += deltaY;
-    pl.collisionBox.y += deltaY;
     //}
 }
 
@@ -264,15 +255,25 @@ function drawPlayer(pl) {
     // -18 и - 21 нужно для стыковки с хитбоксом
 }
 
-function drawFrame(ent) {
-    ctx.drawImage(ent.imgName, ent.imageX, ent.imageY, ent.frameWidth, ent.frameHeight,
-        ent.x, ent.y, ent.width, ent.height);
-}
+// function drawFrame(pl) {
+//     ctx.save();
+//     //console.log(pl.imageX);
+//     ctx.translate(pl.x/* - MIDDLE_X*/, pl.y /*- MIDDLE_Y*/);
+//     ctx.rotate(pl.angle);
+
+//     ctx.fillRect(pl.x, pl.y, pl.width, pl.height);
+
+//     ctx.drawImage(pl.imgName, pl.imageX, pl.imageY, pl.width, pl.height,
+//         pl.x, pl.y, pl.width, pl.height);
+
+//     ctx.translate(pl.imgWidth / 2, pl.imgHeight / 2);
+//     ctx.restore();
+// }
 
 function gameLoop() {
 
-    let mX = mouseX - pl.x - 24;
-    let mY = mouseY - pl.y - 24;
+    let mX = mouseX - pl.x;
+    let mY = mouseY - pl.y;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (keyPresses[87]) {
@@ -292,10 +293,8 @@ function gameLoop() {
     ctx.fillStyle = "black";
 
     //enemy
-    ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
+    ctx.fillRect(enemyList[0].collisionBox.pl.x, enemyList[0].collisionBox.pl.y, enemyList[0].collisionBox.pl.width, enemyList[0].collisionBox.pl.height);
 
-    //Рисовка противника
-    drawFrame(enemyList[0]);
 
     ctx.save();
 
@@ -308,39 +307,32 @@ function gameLoop() {
         rotation = -Math.PI - asin;
     }
 
-    ctx.translate(pl.collisionBox.x + pl.collisionBox.width / 2, pl.collisionBox.y + pl.collisionBox.height / 2)
-
+    //ctx.translate(pl.x + MIDDLE_X + 5, pl.y + MIDDLE_Y);
+    ctx.translate(pl.collisionBox.pl.x + pl.collisionBox.pl.width / 2, pl.collisionBox.pl.y + pl.collisionBox.pl.height / 2)
     pl.angle = rotation;
-    pl.collisionBox.angle = rotation;
+    ctx.rotate(rotation);
 
-    ctx.rotate(rotation); // Поворот холста
-
-    //black rectangle
-    ctx.fillRect(- pl.collisionBox.width / 2, -pl.collisionBox.height / 2, pl.collisionBox.width, pl.collisionBox.height);
+    //rectangle
+    ctx.fillRect(- pl.collisionBox.pl.width / 2, -pl.collisionBox.pl.height / 2, pl.collisionBox.pl.width, pl.collisionBox.pl.height);
 
     drawPlayer(pl);
     //drawFrame(policeman, pl.playerImageX, pl.playerImageY, -MIDDLE_X, -MIDDLE_Y, );
 
-    //rotating hitbox of attack;
+    //rotating hitbox of attack
     ctx.strokeStyle = "red";
     ctx.strokeRect(
-        - pl.collisionBox.width / 2,
-        -pl.collisionBox.height / 2 + 25,
-        30 * SCALE, 16 * SCALE
+        - pl.collisionBox.pl.width / 2,
+        -pl.collisionBox.pl.height / 2 + 25,
+        pl.collisionOfWeapon.collisionBox.pl.width,
+        pl.collisionOfWeapon.collisionBox.pl.height
     )
 
-    ctx.strokeRect(
-        - pl.collisionBox.width / 2 + 20,
-        -pl.collisionBox.height / 2 - 5,
-        20 * SCALE,
-        30 * SCALE
-    )
+    //ctx.strokeRect(- pl.collisionBox.pl.width / 2, -pl.collisionBox.pl.height / 2 + 25, 30 * SCALE, 16 * SCALE)
     ctx.strokeStyle = "black";
 
-    //закраска хитбокса во время активации
     if (testBool) {
         ctx.fillStyle = "blue";
-        ctx.fillRect(- pl.collisionBox.width / 2, -pl.collisionBox.height / 2 + 25, 30 * SCALE, 16 * SCALE);
+        ctx.fillRect(- pl.collisionBox.pl.width / 2, -pl.collisionBox.pl.height / 2 + 25, 30 * SCALE, 16 * SCALE)
         ctx.fillStyle = "black";
         testBool = false;
     }
@@ -349,84 +341,58 @@ function gameLoop() {
 
     //хитбокс игрока
     ctx.fillStyle = "rgba(1, 0, 0, 0.5)";
-    ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
+    ctx.fillRect(pl.collisionBox.pl.x, pl.collisionBox.pl.y, pl.collisionBox.pl.width, pl.collisionBox.pl.height);
     ctx.fillStyle = "black";
 
     //hitbox of attack
     ctx.strokeStyle = "red";
-    ctx.strokeRect(pl.x, pl.y + 25, 30 * SCALE, 16 * SCALE);
-
-    ctx.strokeRect(pl.x + 20, pl.y - 5, 20 * SCALE, 30 * SCALE);
+    ctx.strokeRect(pl.x, pl.y + 25, 30 * SCALE, 16 * SCALE)
     ctx.strokeStyle = "black";
+
+
 
     window.requestAnimationFrame(gameLoop);
 }
 let testBool = false;
-
 function attackOfBatonCollision(frameCount) {
-    let hitboxes = [
-        new hitbox(pl, 5 * Math.cos(pl.angle) - 8 * Math.sin(pl.angle), 8 * Math.cos(pl.angle) + 5 * Math.sin(pl.angle), 30, 16),
-        new hitbox(pl, 30 * Math.cos(pl.angle) + 5 * Math.sin(pl.angle), - 5 * Math.cos(pl.angle) + 30 * Math.sin(pl.angle), 20, 30)
-    ];
-    if (frameCount > 4) {
-        for (let id in enemyList) {
-            let en = enemyList[id];
-            let enBox = en.collisionBox;
-            for (let h in hitboxes) {
-                if (hitboxes[h].collisionBox.collision(enBox)) {
-                    console.log("collision with enemy id: " + id);
-                }
-            }
-        }
+    if (frameCount > 7) {
+        frameCount = 0;
         return;
     }
+    if (frameCount == 5) {
+        //ctx.strokeRect(5, -30, 20 * SCALE, 30 * SCALE);
+        //ctx.strokeRect(-16, 0, 30 * SCALE, 16 * SCALE);
+        ctx.save();
+        ctx.translate(pl.collisionBox.pl.x + pl.collisionBox.pl.width / 2, pl.collisionBox.pl.y + pl.collisionBox.pl.height / 2)
+        ctx.rotate(pl.angle);
+
+        let hitBox1 = new hitbox(pl, 0, 25, 30 /** SCALE*/, 16 /** SCALE*/);
+        testBool = true;
+
+        if (pl.collisionBox.collision(enemyList[0].collisionBox)) {
+            console.log("попал по врагу");
+        }
+        if (pl.collisionOfWeapon.collisionBox.collision(enemyList[0].collisionBox)) {
+            console.log("попал оружием");
+        }
+        /*if (hitBox1.collisionBox.collision(enemyList[0].collisionBox)) {
+            console.log("попал по врагу");
+        }*/
+
+
+        ctx.restore()
+    }
+    /*if (frameCount == 6) {
+        let hitBox2 = new hitbox(pl, 5, -30, 20, 30);
+        if (hitBox2.collisionBox.collision(enemyList[0].collisionBox)) {
+            console.log("попал по врагу");
+        }
+    }*/
     frameCount++;
-    setTimeout(() => {
-        attackOfBatonCollision(frameCount);
-    }, FRAME_SPEED);
+    if (lockAnimation) {
+        setTimeout(() => {
+            attackOfBatonCollision(frameCount);
+        }, FRAME_SPEED, frameCount);
+    }
+
 }
-
-// function attackOfBatonCollision(frameCount) {
-//     if (frameCount > 7) {
-//         frameCount = 0;
-//         return;
-//     }
-//     if (frameCount == 5) {
-//         //ctx.strokeRect(5, -30, 20 * SCALE, 30 * SCALE);
-//         //ctx.strokeRect(-16, 0, 30 * SCALE, 16 * SCALE);
-
-
-//         //let hitBox1 = new hitbox(pl, 0, 25, 30 /** SCALE*/, 16 /** SCALE*/);
-//         testBool = true;
-
-//         if (pl.collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("телом попал");
-//         }
-//         if (pl.collisionOfWeapon[0].collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("попал оружием");
-//         }
-
-//         console.log(enemyList[0]);
-
-//         /*console.log(pl.collisionBox);
-//         console.log(pl.collisionOfWeapon[1].collisionBox);*/
-
-//         /*if (hitBox1.collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("попал по врагу");
-//         }*/
-
-//     }
-//     if (frameCount == 6) {
-//         // let hitBox2 = new hitbox(pl, 5, -30, 20, 30);
-//         if (pl.collisionOfWeapon[1].collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("попал по врагу");
-//         }
-//     }
-//     frameCount++;
-//     if (lockAnimation) {
-//         setTimeout(() => {
-//             attackOfBatonCollision(frameCount);
-//         }, FRAME_SPEED, frameCount);
-//     }
-
-// }
