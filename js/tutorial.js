@@ -5,10 +5,10 @@ const WIDTH = SCALE * FRAME_WIDTH;
 const HEIGHT = SCALE * FRAME_HEIGHT;
 const MIDDLE_X = WIDTH / 2 - 5;
 const MIDDLE_Y = HEIGHT / 2;
-const MOVEMENT_SPEED = 1;
+const MOVEMENT_SPEED = 10;
 const FRAME_X = 315;
 const FRAME_Y = 340;
-const FRAME_SPEED = 50;
+const FRAME_SPEED = 1000 / 36;
 
 let canvas;
 let ctx;
@@ -53,7 +53,7 @@ class player extends entity {
             if (lockAnimation) {
                 setTimeout(() => {
                     this.attackOfBatonAnimation(frameCount);
-                }, FRAME_SPEED, frameCount);
+                }, FRAME_SPEED + 11, frameCount);
             }
         }
         if (frameCount > 7) {
@@ -75,7 +75,7 @@ class player extends entity {
         if (lockAnimation) {
             setTimeout(() => {
                 this.attackOfBatonAnimation(frameCount);
-            }, FRAME_SPEED, frameCount);
+            }, FRAME_SPEED + 11, frameCount);
         }
 
     }
@@ -83,13 +83,13 @@ class player extends entity {
 
 class enemy extends entity {
     constructor(imgName, enemyImageX, enemyImageY, frameWidth, frameHeight, x, y, width, height, angle) {
-        super(x, y, frameWidth / 4, frameHeight / 2, angle);
+        super(x, y, frameWidth, frameHeight, angle);
         this.imgName = imgName;
         this.imageX = enemyImageX;
         this.imageY = enemyImageY;
         this.imgWidth = frameWidth;
         this.imgHeight = frameHeight;
-        this.collisionBox = new collisionBox(this.x, this.y, this.width, this.height, this.angle);
+        this.collisionBox = new collisionBox(this.x, this.y, width / 4, height / 2, this.angle);
     }
 }
 
@@ -227,6 +227,8 @@ function init() {
     canvas = document.getElementById("canvas");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
 
     canvas.addEventListener('mousemove', function (evt) {
         var rect = this.getBoundingClientRect();
@@ -240,8 +242,9 @@ function init() {
     pl = new player(policeman, FRAME_X, FRAME_Y, WIDTH / 2, HEIGHT / 2, 0);
 
     enemyList[0] = new enemy(prisoners, 1059, 62, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
+    enemyList[1] = new enemy(prisoners, 364, 247, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
 
-    ctx = canvas.getContext('2d');
+
 }
 
 loadImage();
@@ -265,8 +268,11 @@ function drawPlayer(pl) {
 }
 
 function drawFrame(ent) {
-    ctx.drawImage(ent.imgName, ent.imageX, ent.imageY, ent.frameWidth, ent.frameHeight,
-        ent.x, ent.y, ent.width, ent.height);
+    if (--testCounter == 0) {
+        console.log(ent);
+    }
+    ctx.drawImage(ent.imgName, ent.imageX, ent.imageY, ent.imgWidth, ent.imgHeight,
+        ent.x - (ent.width / 2) + 13, ent.y - (ent.height / 2) + 22, ent.width, ent.height);
 }
 
 function gameLoop() {
@@ -290,12 +296,6 @@ function gameLoop() {
     ctx.fillStyle = "#ad0068";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "black";
-
-    //enemy
-    ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
-
-    //Рисовка противника
-    drawFrame(enemyList[0]);
 
     ctx.save();
 
@@ -337,14 +337,6 @@ function gameLoop() {
     )
     ctx.strokeStyle = "black";
 
-    //закраска хитбокса во время активации
-    if (testBool) {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(- pl.collisionBox.width / 2, -pl.collisionBox.height / 2 + 25, 30 * SCALE, 16 * SCALE);
-        ctx.fillStyle = "black";
-        testBool = false;
-    }
-
     ctx.restore();
 
     //хитбокс игрока
@@ -359,9 +351,19 @@ function gameLoop() {
     ctx.strokeRect(pl.x + 20, pl.y - 5, 20 * SCALE, 30 * SCALE);
     ctx.strokeStyle = "black";
 
-    window.requestAnimationFrame(gameLoop);
+    //enemy
+    ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
+
+    //Рисовка противников
+    for (let i = 0; i < enemyList.length; i++) {
+        drawFrame(enemyList[i]);
+    }
+
+    setTimeout(() => {
+        window.requestAnimationFrame(gameLoop);
+    }, FRAME_SPEED);
+
 }
-let testBool = false;
 
 function attackOfBatonCollision(frameCount) {
     let hitboxes = [
@@ -375,6 +377,7 @@ function attackOfBatonCollision(frameCount) {
             for (let h in hitboxes) {
                 if (hitboxes[h].collisionBox.collision(enBox)) {
                     console.log("collision with enemy id: " + id);
+
                 }
             }
         }
@@ -383,50 +386,5 @@ function attackOfBatonCollision(frameCount) {
     frameCount++;
     setTimeout(() => {
         attackOfBatonCollision(frameCount);
-    }, FRAME_SPEED);
+    }, FRAME_SPEED + 11);
 }
-
-// function attackOfBatonCollision(frameCount) {
-//     if (frameCount > 7) {
-//         frameCount = 0;
-//         return;
-//     }
-//     if (frameCount == 5) {
-//         //ctx.strokeRect(5, -30, 20 * SCALE, 30 * SCALE);
-//         //ctx.strokeRect(-16, 0, 30 * SCALE, 16 * SCALE);
-
-
-//         //let hitBox1 = new hitbox(pl, 0, 25, 30 /** SCALE*/, 16 /** SCALE*/);
-//         testBool = true;
-
-//         if (pl.collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("телом попал");
-//         }
-//         if (pl.collisionOfWeapon[0].collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("попал оружием");
-//         }
-
-//         console.log(enemyList[0]);
-
-//         /*console.log(pl.collisionBox);
-//         console.log(pl.collisionOfWeapon[1].collisionBox);*/
-
-//         /*if (hitBox1.collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("попал по врагу");
-//         }*/
-
-//     }
-//     if (frameCount == 6) {
-//         // let hitBox2 = new hitbox(pl, 5, -30, 20, 30);
-//         if (pl.collisionOfWeapon[1].collisionBox.collision(enemyList[0].collisionBox)) {
-//             console.log("попал по врагу");
-//         }
-//     }
-//     frameCount++;
-//     if (lockAnimation) {
-//         setTimeout(() => {
-//             attackOfBatonCollision(frameCount);
-//         }, FRAME_SPEED, frameCount);
-//     }
-
-// }
