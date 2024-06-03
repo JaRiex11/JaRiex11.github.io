@@ -6,8 +6,8 @@ const HEIGHT = SCALE * FRAME_HEIGHT;
 const MIDDLE_X = WIDTH / 2 - 5;
 const MIDDLE_Y = HEIGHT / 2;
 const MOVEMENT_SPEED = 10;
-const FRAME_X = 315;
-const FRAME_Y = 340;
+const FRAME_X = 0;
+const FRAME_Y = 0;
 const FRAME_SPEED = 1000 / 36;
 
 let canvas;
@@ -20,6 +20,7 @@ let pl;
 let enemyList = [];
 let imgCounter = 2; // количество рисунков
 let testCounter = 1;
+let random_num = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
 
 class entity {
     constructor(x, y, width, height, angle) {
@@ -47,16 +48,16 @@ class player extends entity {
     }
 
     attackOfBatonAnimation(frameCount) {
-        if (frameCount == 7) {
-            this.imageX = 314;
-            this.imageY = 745;
-            frameCount++;
-            if (lockAnimation) {
-                setTimeout(() => {
-                    this.attackOfBatonAnimation(frameCount);
-                }, FRAME_SPEED + 11, frameCount);
-            }
-        }
+        // if (frameCount == 7) {
+        //     this.imageX = 314;
+        //     this.imageY = 745;
+        //     frameCount++;
+        //     if (lockAnimation) {
+        //         setTimeout(() => {
+        //             this.attackOfBatonAnimation(frameCount);
+        //         }, FRAME_SPEED + 11, frameCount);
+        //     }
+        // }
         if (frameCount > 7) {
             frameCount = 0;
             this.imageX = FRAME_X;
@@ -64,13 +65,9 @@ class player extends entity {
             lockAnimation = false;
             return;
         }
-        if (frameCount < 5) {
-            this.imageX = 314;
-            this.imageY = 699 + (45 * frameCount);
-        } else {
-            this.imageX = 364;
-            this.imageY = 372 + (45 * (frameCount - 5));
-        }
+        this.imageX = 0;
+        this.imageY = 45 + (45 * frameCount);
+
 
         frameCount++;
         if (lockAnimation) {
@@ -99,12 +96,12 @@ class enemy extends entity {
         if (frameCount > 6) {
             frameCount = 0;
             this.lockAnimation = false;
-            this.imageX = 364;
-            this.imageY = 247;
+            this.imageX = 0;
+            this.imageY = 0;
             return;
         }
-        this.imageX = 757 + (49 * frameCount);
-        this.imageY = 248;
+        this.imageX = 50 + (50 * frameCount);
+        this.imageY = 0;
         frameCount++;
         if (this.lockAnimation) {
             setTimeout(() => {
@@ -264,8 +261,8 @@ function init() {
 
     pl = new player(policeman, FRAME_X, FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT, WIDTH / 2, HEIGHT / 2, 0);
 
-    enemyList[0] = new enemy(prisoners, 364, 247, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
-    enemyList[1] = new enemy(prisoners, 364, 247, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
+    enemyList[0] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
+    enemyList[1] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
 
 
 }
@@ -303,10 +300,13 @@ function gameLoop() {
     let mx, my;
 
     if (pl.isDead) {
-        pl.imageX = 421;
-        pl.imageY = 337;
-        pl.imgWidth = 65;
-        pl.imgHeight = 35;
+        //censured
+        pl.imageX = 50;
+        pl.imageY = 0;
+        //uncensured
+        /*
+        pl.imageX = 50;
+        pl.imageY = 45 * random_num;*/
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -329,10 +329,15 @@ function gameLoop() {
     //Рисовка и передвижение противников
     for (let i = 0; i < enemyList.length; i++) {
         if (enemyList[i].isDead) {
-            enemyList[i].imageX = 625;
-            enemyList[i].imageY = 168;
+            //censured
+            enemyList[i].imageX = 0;
+            enemyList[i].imageY = 45;
+
+            //uncensured
+            /*enemyList[i].imageX = 60 * random_num;
+            enemyList[i].imageY = 45;
             enemyList[i].imgWidth = 60;
-            enemyList[i].imgHeight = 38;
+            enemyList[i].imgHeight = 50;*/
         } else {
             let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
             let pathLength = Math.sqrt(path.x * path.x + path.y * path.y);
@@ -365,12 +370,10 @@ function gameLoop() {
         }
 
         ctx.save();
-        ctx.translate(enemyList[i].collisionBox.x + enemyList[i].collisionBox.width / 2, enemyList[i].collisionBox.y + enemyList[i].collisionBox.height / 2)
-        if (enemyList[i].isDead) {
-            ctx.rotate(enemyList[i].angle - Math.PI);
-        } else {
-            ctx.rotate(enemyList[i].angle);
-        }
+        ctx.translate(enemyList[i].collisionBox.x + enemyList[i].collisionBox.width / 2, enemyList[i].collisionBox.y + enemyList[i].collisionBox.height / 2);
+
+        ctx.rotate(enemyList[i].angle);
+
 
         drawFrame(enemyList[i]);
         ctx.restore();
@@ -420,6 +423,9 @@ function gameLoop() {
     ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
     ctx.fillStyle = "black";
 
+    if (pl.isDead) {
+        return;
+    }
     setTimeout(() => {
         window.requestAnimationFrame(gameLoop);
     }, FRAME_SPEED);
