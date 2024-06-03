@@ -32,13 +32,15 @@ class entity {
 }
 
 class player extends entity {
-    constructor(imgName, playerImageX, playerImageY, x, y, angle) {
-        super(x /** SCALE*/, y /** SCALE*/, /*WIDTH*/FRAME_WIDTH / 4, /*HEIGHT*/FRAME_HEIGHT / 2, angle);
+    constructor(imgName, playerImageX, playerImageY, imgWidth, imgHeight, x, y, angle) {
+        super(x /** SCALE*/, y /** SCALE*/, /*WIDTH*/imgWidth / 4, /*HEIGHT*/imgHeight / 2, angle);
         this.imgName = imgName;
         this.imageX = playerImageX;
         this.imageY = playerImageY;
-        this.imgWidth = FRAME_WIDTH;
-        this.imgHeight = FRAME_HEIGHT;
+        this.imgWidth = imgWidth;//FRAME_WIDTH;
+        this.imgHeight = imgHeight;//FRAME_HEIGHT;
+        this.isDead = false;
+        this.lockAnimation = false;
         this.collisionBox = new collisionBox(this.x, this.y, WIDTH / 4, HEIGHT / 2, this.angle);
         // this.collisionOfWeapon = [
 
@@ -89,7 +91,25 @@ class enemy extends entity {
         this.imageY = enemyImageY;
         this.imgWidth = frameWidth;
         this.imgHeight = frameHeight;
+        this.isDead = false;
         this.collisionBox = new collisionBox(this.x, this.y, width / 4, height / 2, this.angle);
+    }
+
+    attackOfEnemyBatonAnimation(frameCount) {
+        if (frameCount > 6) {
+            frameCount = 0;
+            this.lockAnimation = false;
+            return;
+        }
+        this.imageX = 757 + (49 * frameCount);
+        this.imageY = 248;
+        frameCount++;
+        if (this.lockAnimation) {
+            setTimeout(() => {
+                this.attackOfEnemyBatonAnimation(frameCount);
+            }, FRAME_SPEED + 11, frameCount);
+        }
+
     }
 }
 
@@ -239,7 +259,7 @@ function init() {
 
     }, false);
 
-    pl = new player(policeman, FRAME_X, FRAME_Y, WIDTH / 2, HEIGHT / 2, 0);
+    pl = new player(policeman, FRAME_X, FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT, WIDTH / 2, HEIGHT / 2, 0);
 
     enemyList[0] = new enemy(prisoners, 1059, 62, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
     enemyList[1] = new enemy(prisoners, 364, 247, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
@@ -261,7 +281,7 @@ function moveCharacter(deltaX, deltaY) {
 }
 
 function drawPlayer(pl) {
-    ctx.drawImage(pl.imgName, pl.imageX, pl.imageY, FRAME_WIDTH, FRAME_HEIGHT,
+    ctx.drawImage(pl.imgName, pl.imageX, pl.imageY, pl.imgWidth, pl.imgHeight,
         0 - MIDDLE_X + 18 - 14, 0 - 21 - 21, WIDTH, HEIGHT);
     //-14 и -21 нужно для стыковки с центром кручения
     // -18 и - 21 нужно для стыковки с хитбоксом
@@ -276,6 +296,13 @@ function drawFrame(ent) {
 }
 
 function gameLoop() {
+
+    if (pl.isDead) {
+        pl.imageX = 421;
+        pl.imageY = 337;
+        pl.imgWidth = 65;
+        pl.imgHeight = 35;
+    }
 
     let mX = mouseX - pl.x - 24;
     let mY = mouseY - pl.y - 24;
@@ -354,32 +381,54 @@ function gameLoop() {
     //enemy
     ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
 
-    //Рисовка противников
+    //Рисовка и передвижение противников
     for (let i = 0; i < enemyList.length; i++) {
-        //from github{
-        let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
-        let pathLength = Math.abs(path);
+        if (enemyList[i].isDead) {
+            enemyList[i].imageX = 625;
+            enemyList[i].imageY = 168;
+            enemyList[i].imgWidth = 60;
+            enemyList[i].imgHeight = 38;
+        } else {
+            let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
+            let pathLength = Math.sqrt(path.x * path.x + path.y * path.y);
 
-        mX = pl.x - enemyList[i].x - 24;
-        mY = pl.y - enemyList[i].y - 24;
-        asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
-        acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
-        rotation = asin;
-        if (acos > Math.PI / 2.) {
-            rotation = -Math.PI - asin;
+            if (pathLength > 70) {
+                enemyList[i].x += (MOVEMENT_SPEED - 1) * path.x / pathLength;
+                enemyList[i].y += (MOVEMENT_SPEED - 1) * path.y / pathLength;
+                enemyList[i].collisionBox.x += MOVEMENT_SPEED * path.x / pathLength;
+                enemyList[i].collisionBox.y += MOVEMENT_SPEED * path.y / pathLength;
+            } else { //игрок в зоне досигаемости
+                if (!enemyList[i].lockAnimation) {
+                    enemyList[i].attackOfEnemyBatonAnimation(0);
+                    attackOfEnemyBatonCollision(enemyList[i], 0);
+                }
+            }
+
+            mX = pl.x - enemyList[i].x - 24;
+            mY = pl.y - enemyList[i].y - 24;
+            asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
+            acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
+            rotation = asin;
+            if (acos > Math.PI / 2.) {
+                rotation = -Math.PI - asin;
+            }
+
+            enemyList[i].angle = rotation;
+            enemyList[i].collisionBox.angle = rotation;
         }
 
-        enemyList[i].angle = rotation;
-        enemyList[i].collisionBox.angle = rotation;
-        
         ctx.save();
         ctx.translate(enemyList[i].collisionBox.x + enemyList[i].collisionBox.width / 2, enemyList[i].collisionBox.y + enemyList[i].collisionBox.height / 2)
-        ctx.rotate(rotation);
-        
+        if (enemyList[i].isDead) {
+            ctx.rotate(enemyList[i].angle - Math.PI);
+        } else {
+            ctx.rotate(enemyList[i].angle);
+        }
+
         drawFrame(enemyList[i]);
 
         ctx.restore();
-        //}
+
     }
 
     setTimeout(() => {
@@ -400,7 +449,7 @@ function attackOfBatonCollision(frameCount) {
             for (let h in hitboxes) {
                 if (hitboxes[h].collisionBox.collision(enBox)) {
                     console.log("collision with enemy id: " + id);
-
+                    enemyList[id].isDead = true;
                 }
             }
         }
@@ -409,5 +458,26 @@ function attackOfBatonCollision(frameCount) {
     frameCount++;
     setTimeout(() => {
         attackOfBatonCollision(frameCount);
+    }, FRAME_SPEED + 11);
+}
+
+function attackOfEnemyBatonCollision(enemy, frameCount) {
+    let hitboxes = [
+        new hitbox(enemy, 5 * Math.cos(enemy.angle) - 8 * Math.sin(enemy.angle), 8 * Math.cos(enemy.angle) + 5 * Math.sin(enemy.angle), 30, 16),
+        new hitbox(enemy, 30 * Math.cos(enemy.angle) + 5 * Math.sin(enemy.angle), - 5 * Math.cos(enemy.angle) + 30 * Math.sin(enemy.angle), 20, 30)
+    ];
+    if (frameCount > 4) {
+        for (let h in hitboxes) {
+            if (hitboxes[h].collisionBox.collision(pl.collisionBox)) {
+                console.log("collision with enemy player");
+                pl.isDead = true;
+            }
+        }
+
+        return;
+    }
+    frameCount++;
+    setTimeout(() => {
+        attackOfEnemyBatonCollision(enemy, frameCount);
     }, FRAME_SPEED + 11);
 }
