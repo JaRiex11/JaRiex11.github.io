@@ -324,8 +324,6 @@ function gameLoop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "black";
 
-    ctx.save();
-
     //вычисление угла поворота
     var asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
     var acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
@@ -381,8 +379,8 @@ function gameLoop() {
 
         drawFrame(enemyList[i]);
         ctx.restore();
-
-        ctx.translate(pl.collisionBox.x + pl.collisionBox.width / 2, pl.collisionBox.y + pl.collisionBox.height / 2)
+    ctx.save();
+    ctx.translate(pl.collisionBox.x + pl.collisionBox.width / 2, pl.collisionBox.y + pl.collisionBox.height / 2)
 
     pl.angle = rotation;
     pl.collisionBox.angle = rotation;
