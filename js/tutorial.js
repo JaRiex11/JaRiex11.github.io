@@ -272,7 +272,7 @@ function drawFrame(ent) {
         console.log(ent);
     }
     ctx.drawImage(ent.imgName, ent.imageX, ent.imageY, ent.imgWidth, ent.imgHeight,
-        ent.x - (ent.width / 2) + 13, ent.y - (ent.height / 2) + 22, ent.width, ent.height);
+        /*ent.x/* - (ent.width / 2) + 13, /*ent.y*/ - (ent.height / 2) + 22, ent.width, ent.height);
 }
 
 function gameLoop() {
@@ -356,7 +356,28 @@ function gameLoop() {
 
     //Рисовка противников
     for (let i = 0; i < enemyList.length; i++) {
+        //from github{
+        let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
+        let pathLength = Math.abs(path);
+
+        asin = Math.asin(pl.y / Math.sqrt(pl.y  * pl.y  + pl.x * pl.x));
+        acos = Math.acos(pl.x / Math.sqrt(pl.y  * pl.y  + pl.x * pl.x));
+        rotation = asin;
+        if (acos > Math.PI / 2.) {
+            rotation = -Math.PI - asin;
+        }
+
+        enemyList[i].angle = rotation;
+        enemyList[i].collisionBox.angle = rotation;
+        
+        ctx.save();
+        ctx.translate(enemyList[i].collisionBox.x + enemyList[i].collisionBox.width / 2, enemyList[i].collisionBox.y + enemyList[i].collisionBox.height / 2)
+        ctx.rotate(rotation);
+        
         drawFrame(enemyList[i]);
+
+        ctx.restore();
+        //}
     }
 
     setTimeout(() => {
