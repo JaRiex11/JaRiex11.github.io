@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let child = document.createElement('div');
         child.setAttribute('id', 'container-newGame');
         child.classList.add('notMenu');
-        window.location.href = "../data/tutorial.html";
+        window.location.href = "../tutorial.html";
     }
 
     function switchToSettings() {
@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let child = document.createElement('div');
         child.setAttribute('id', 'container-settings');
         child.classList.add('notMenu');
+
         /* создание кнопки видео */
         let button1 = document.createElement('div');
         button1.setAttribute('id', 'sett-button1');
@@ -95,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         but1.setAttribute('id', 'video');
         but1.textContent = 'Video';
         button1.appendChild(but1);
+
         /* создание кнопки аудио */
         let button2 = document.createElement('div');
         button2.setAttribute('id', 'sett-button2');
@@ -102,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         but2.setAttribute('id', 'audio');
         but2.textContent = 'Audio';
         button2.appendChild(but2);
+
         /* создание кнопки back */
         let back = document.createElement('div');
         back.setAttribute('id', 'sett-back-button');

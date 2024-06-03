@@ -9,6 +9,7 @@ const MOVEMENT_SPEED = 10;
 const FRAME_X = 0;
 const FRAME_Y = 0;
 const FRAME_SPEED = 1000 / 36;
+const COMBO_TIME = 75;
 
 let canvas;
 let ctx;
@@ -21,6 +22,12 @@ let enemyList = [];
 let imgCounter = 2; // количество рисунков
 let testCounter = 1;
 let random_num = Math.floor(Math.random() * (3 - 1 + 1)) + 1;
+let isPaused = false;
+let score = 0;
+let combo = 0;
+let comboTimer = COMBO_TIME;
+let cntEnemies = Math.floor(Math.random() * (8 - 1 + 1)) + 4;
+let cntKills = 0;
 
 class entity {
     constructor(x, y, width, height, angle) {
@@ -48,16 +55,6 @@ class player extends entity {
     }
 
     attackOfBatonAnimation(frameCount) {
-        // if (frameCount == 7) {
-        //     this.imageX = 314;
-        //     this.imageY = 745;
-        //     frameCount++;
-        //     if (lockAnimation) {
-        //         setTimeout(() => {
-        //             this.attackOfBatonAnimation(frameCount);
-        //         }, FRAME_SPEED + 11, frameCount);
-        //     }
-        // }
         if (frameCount > 7) {
             frameCount = 0;
             this.imageX = FRAME_X;
@@ -89,6 +86,7 @@ class enemy extends entity {
         this.imgHeight = frameHeight;
         this.isDead = false;
         this.lockAnimation = false;
+        this.scores = 500;
         this.collisionBox = new collisionBox(this.x, this.y, width / 4, height / 2, this.angle);
     }
 
@@ -105,7 +103,6 @@ class enemy extends entity {
         frameCount++;
         if (this.lockAnimation) {
             setTimeout(() => {
-                console.log(frameCount)
                 this.attackOfEnemyBatonAnimation(frameCount);
             }, FRAME_SPEED + 11, frameCount);
         }
@@ -192,6 +189,9 @@ class collisionBox {
 window.addEventListener('keydown', keyDownListener);
 function keyDownListener(event) {
     keyPresses[event.keyCode] = true;
+    if (keyPresses[27]) {
+        isPaused = !isPaused;
+    }
 }
 
 window.addEventListener('keyup', keyUpListener);
@@ -234,7 +234,10 @@ function loadImage() {
 
     prisoners.src = '../img/prisoners.png';
     prisoners.onload = function () {
-        enemyList[0].imgName = prisoners;
+
+        for (let i = 0; i < cntEnemies; i++) {
+            enemyList[i].imgName = prisoners;
+        }
 
         imgCounter--;
         if (imgCounter == 0) {
@@ -245,8 +248,8 @@ function loadImage() {
 
 function init() {
     canvas = document.getElementById("canvas");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth - 5;
+    canvas.height = window.innerHeight - 5;
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
 
@@ -261,23 +264,30 @@ function init() {
 
     pl = new player(policeman, FRAME_X, FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT, WIDTH / 2, HEIGHT / 2, 0);
 
-    enemyList[0] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
-    enemyList[1] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
+    for (let i = 0; i < cntEnemies; i++) {
+        enemyList[i] = new enemy(
+            prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT,
+            Math.floor(Math.random() * (canvas.width / SCALE - 25 + 1)) + 25, Math.floor(Math.random() * (canvas.height / SCALE - 25 + 1)) + 25, WIDTH, HEIGHT, 0);
+    }
 
+    /*enemyList[0] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
+    enemyList[1] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
+    enemyList[2] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 180, 50, WIDTH, HEIGHT, 0);
+    enemyList[3] = new enemy(prisoners, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 300, 300, WIDTH, HEIGHT, 0);*/
 
 }
 
 loadImage();
 
 function moveCharacter(deltaX, deltaY) {
-    //if (pl.x + deltaX > -FRAME_WIDTH / 2.0 && pl.x + WIDTH + deltaX < canvas.width) {
-    pl.x += deltaX;
-    pl.collisionBox.x += deltaX;
-    //}
-    //if (pl.y + deltaY > -FRAME_HEIGHT / 2.0 && pl.y + HEIGHT + deltaY < canvas.height) {
-    pl.y += deltaY;
-    pl.collisionBox.y += deltaY;
-    //}
+    if (pl.x + deltaX > 0 && pl.x + WIDTH + deltaX < canvas.width) {
+        pl.x += deltaX;
+        pl.collisionBox.x += deltaX;
+    }
+    if (pl.y + deltaY > 0 && pl.y + HEIGHT + deltaY < canvas.height) {
+        pl.y += deltaY;
+        pl.collisionBox.y += deltaY;
+    }
 }
 
 function drawPlayer(pl) {
@@ -288,9 +298,6 @@ function drawPlayer(pl) {
 }
 
 function drawFrame(ent) {
-    if (--testCounter == 0) {
-        console.log(ent.collisionBox);
-    }
     ctx.drawImage(ent.imgName, ent.imageX, ent.imageY, ent.imgWidth, ent.imgHeight,
         0 - ent.width / 2, 0 - ent.height / 2, ent.width, ent.height);
 }
@@ -310,6 +317,7 @@ function gameLoop() {
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     if (keyPresses[87]) {
         moveCharacter(0, -MOVEMENT_SPEED);
     } else if (keyPresses[83]) {
@@ -342,14 +350,13 @@ function gameLoop() {
             let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
             let pathLength = Math.sqrt(path.x * path.x + path.y * path.y);
 
-            if (pathLength > 50) {
+            if (pathLength > 50 && pathLength < 250) {
                 enemyList[i].x += (MOVEMENT_SPEED - 1) * path.x / pathLength;
                 enemyList[i].y += (MOVEMENT_SPEED - 1) * path.y / pathLength;
                 enemyList[i].collisionBox.x += MOVEMENT_SPEED * path.x / pathLength;
                 enemyList[i].collisionBox.y += MOVEMENT_SPEED * path.y / pathLength;
             } else { //игрок в зоне досигаемости
-                console.log(enemyList[i].lockAnimation);
-                if (!enemyList[i].lockAnimation) {
+                if (pathLength < 50 && !enemyList[i].lockAnimation) {
                     enemyList[i].lockAnimation = true;
                     enemyList[i].attackOfEnemyBatonAnimation(0);
                     attackOfEnemyBatonCollision(enemyList[i], 0);
@@ -381,6 +388,7 @@ function gameLoop() {
 
     mX = mouseX - pl.x - 24;
     mY = mouseY - pl.y - 24;
+
     //вычисление угла поворота
     var asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
     var acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
@@ -400,14 +408,6 @@ function gameLoop() {
 
     drawPlayer(pl);
 
-    //rotating hitbox of attack;
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(
-        - pl.collisionBox.width / 2,
-        -pl.collisionBox.height / 2 + 25,
-        30 * SCALE, 16 * SCALE
-    )
-
     ctx.strokeRect(
         - pl.collisionBox.width / 2 + 20,
         -pl.collisionBox.height / 2 - 5,
@@ -418,18 +418,104 @@ function gameLoop() {
 
     ctx.restore();
 
-    //хитбокс игрока
-    ctx.fillStyle = "rgba(1, 0, 0, 0.5)";
-    ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
-    ctx.fillStyle = "black";
+    //считаем комбо
+    comboTimer--
+    if (comboTimer <= 0) {
+        combo = 0;
+    }
+    if (cntKills == cntEnemies) {
+        winGame();
+    } else if (pl.isDead) {
+        restart();
+    } else if (isPaused) {
+        gameOnPause();
+    } else {
+        setTimeout(() => {
+            window.requestAnimationFrame(gameLoop);
+        }, FRAME_SPEED);
+    }
 
-    // if (pl.isDead) {
-    //     return;
-    // }
-    setTimeout(() => {
-        window.requestAnimationFrame(gameLoop);
-    }, FRAME_SPEED);
+}
 
+function winGame() {
+    localStorage.setItem("themeColor", 'light');
+    window.location.href = "../scoreWindow.html";
+}
+
+function restart() {
+    canvas.style.position = 'absolute';
+    console.log("isDead");
+    let butContainer = document.createElement('div');
+    let cont = document.createElement('button');
+    let menu = document.createElement('button');
+    let exit = document.createElement('button');
+
+    butContainer.setAttribute('id', "button-container");
+
+    cont.textContent = "Restart";
+    menu.textContent = "Back to menu";
+    exit.textContent = "Exit the game";
+
+    cont.addEventListener('click', restartGame);
+    menu.addEventListener('click', backToMenu);
+    exit.addEventListener('click', closeGame);
+
+    butContainer.appendChild(cont);
+    butContainer.appendChild(menu);
+    butContainer.appendChild(exit);
+
+    document.body.appendChild(butContainer);
+}
+
+function gameOnPause() {
+    canvas.style.position = 'absolute';
+    console.log("isPaused");
+    let butContainer = document.createElement('div');
+    let cont = document.createElement('button');
+    let menu = document.createElement('button');
+    let exit = document.createElement('button');
+
+    butContainer.setAttribute('id', "button-container");
+    cont.setAttribute('id', 'continueButton');
+    menu.setAttribute('id', 'backToMenu');
+    exit.setAttribute('if', 'exitGame');
+
+    cont.textContent = "continue";
+    menu.textContent = "Back to menu";
+    exit.textContent = "exit the game";
+
+    cont.addEventListener('click', continueGame);
+    menu.addEventListener('click', backToMenu);
+    exit.addEventListener('click', closeGame);
+
+    butContainer.appendChild(cont);
+    butContainer.appendChild(menu);
+    butContainer.appendChild(exit);
+
+    document.body.appendChild(butContainer);
+
+}
+
+function restartGame() {
+    pl.isDead = false;
+    location.reload();
+}
+
+function continueGame() {
+    isPaused = false;
+    canvas.style.position = "";
+    document.body.removeChild(document.getElementById('button-container'));
+    gameLoop();
+}
+
+function backToMenu() {
+    window.location.href = "../index.html";
+}
+
+function closeGame() {
+    setTimeout(function () {
+        window.close();
+    }, 10)
 }
 
 function attackOfBatonCollision(frameCount) {
@@ -444,7 +530,16 @@ function attackOfBatonCollision(frameCount) {
             for (let h in hitboxes) {
                 if (hitboxes[h].collisionBox.collision(enBox)) {
                     console.log("collision with enemy id: " + id);
+                    if (!enemyList[id].isDead) {
+                        cntKills++;
+                    }
                     enemyList[id].isDead = true;
+                    combo++;
+                    score += enemyList[id].scores * combo;
+                    console.log(score);
+                    console.log("kills = " + cntKills);
+                    enemyList[id].scores = 0;
+                    comboTimer = COMBO_TIME;
                 }
             }
         }
@@ -476,3 +571,8 @@ function attackOfEnemyBatonCollision(enemy, frameCount) {
         attackOfEnemyBatonCollision(enemy, frameCount);
     }, FRAME_SPEED + 11);
 }
+/*
+cont.
+menu.
+exit.
+    */
