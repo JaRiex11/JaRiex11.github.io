@@ -335,52 +335,6 @@ function gameLoop() {
         rotation = -Math.PI - asin;
     }
 
-    ctx.translate(pl.collisionBox.x + pl.collisionBox.width / 2, pl.collisionBox.y + pl.collisionBox.height / 2)
-
-    pl.angle = rotation;
-    pl.collisionBox.angle = rotation;
-
-    ctx.rotate(rotation); // Поворот холста
-
-    //black rectangle
-    ctx.fillRect(- pl.collisionBox.width / 2, -pl.collisionBox.height / 2, pl.collisionBox.width, pl.collisionBox.height);
-
-    drawPlayer(pl);
-    //drawFrame(policeman, pl.playerImageX, pl.playerImageY, -MIDDLE_X, -MIDDLE_Y, );
-
-    //rotating hitbox of attack;
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(
-        - pl.collisionBox.width / 2,
-        -pl.collisionBox.height / 2 + 25,
-        30 * SCALE, 16 * SCALE
-    )
-
-    ctx.strokeRect(
-        - pl.collisionBox.width / 2 + 20,
-        -pl.collisionBox.height / 2 - 5,
-        20 * SCALE,
-        30 * SCALE
-    )
-    ctx.strokeStyle = "black";
-
-    ctx.restore();
-
-    //хитбокс игрока
-    ctx.fillStyle = "rgba(1, 0, 0, 0.5)";
-    ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
-    ctx.fillStyle = "black";
-
-    //hitbox of attack
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(pl.x, pl.y + 25, 30 * SCALE, 16 * SCALE);
-
-    ctx.strokeRect(pl.x + 20, pl.y - 5, 20 * SCALE, 30 * SCALE);
-    ctx.strokeStyle = "black";
-
-    //enemy
-    ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
-
     //Рисовка и передвижение противников
     for (let i = 0; i < enemyList.length; i++) {
         if (enemyList[i].isDead) {
@@ -426,8 +380,53 @@ function gameLoop() {
         }
 
         drawFrame(enemyList[i]);
-
         ctx.restore();
+
+        ctx.translate(pl.collisionBox.x + pl.collisionBox.width / 2, pl.collisionBox.y + pl.collisionBox.height / 2)
+
+    pl.angle = rotation;
+    pl.collisionBox.angle = rotation;
+
+    ctx.rotate(rotation); // Поворот холста
+
+    //black rectangle
+    ctx.fillRect(- pl.collisionBox.width / 2, -pl.collisionBox.height / 2, pl.collisionBox.width, pl.collisionBox.height);
+
+    drawPlayer(pl);
+    //drawFrame(policeman, pl.playerImageX, pl.playerImageY, -MIDDLE_X, -MIDDLE_Y, );
+
+    //rotating hitbox of attack;
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(
+        - pl.collisionBox.width / 2,
+        -pl.collisionBox.height / 2 + 25,
+        30 * SCALE, 16 * SCALE
+    )
+
+    ctx.strokeRect(
+        - pl.collisionBox.width / 2 + 20,
+        -pl.collisionBox.height / 2 - 5,
+        20 * SCALE,
+        30 * SCALE
+    )
+    ctx.strokeStyle = "black";
+
+    ctx.restore();
+
+    //хитбокс игрока
+    ctx.fillStyle = "rgba(1, 0, 0, 0.5)";
+    ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
+    ctx.fillStyle = "black";
+
+    //hitbox of attack
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(pl.x, pl.y + 25, 30 * SCALE, 16 * SCALE);
+
+    ctx.strokeRect(pl.x + 20, pl.y - 5, 20 * SCALE, 30 * SCALE);
+    ctx.strokeStyle = "black";
+
+    //enemy
+    ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
 
     }
 
