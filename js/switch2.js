@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    localStorage.setItem('theme', 'dark');
-
     window.addEventListener('load', init);
     function init() {
         document.getElementById("newGame").addEventListener("click", switchToNewGame);
@@ -84,21 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(settings, 1000);
     }
 
-    function editForm() {
-        localStorage.setItem("scaleValue", inp.value)
-        console.log(2222);
-    }
-
-    function switchTheme() {
-        if (localStorage.getItem('theme') == "dark") {
-            localStorage.setItem('theme', 'light');
-            document.documentElement.removeAttribute('data-theme');
-        } else {
-            localStorage.setItem('theme', 'dark');
-            document.documentElement.setAttribute('data-theme', "dark");
-        }
-    }
-
     function settings() {
         document.body.removeChild(document.getElementById('container'));
         //создание контейнера
@@ -106,31 +89,20 @@ document.addEventListener("DOMContentLoaded", () => {
         child.setAttribute('id', 'container-settings');
         child.classList.add('notMenu');
 
-        /* создание кнопки скалирования */
+        /* создание кнопки видео */
         let button1 = document.createElement('div');
         button1.setAttribute('id', 'sett-button1');
-        let form = document.createElement('form');
-        form.innerHTML = "Выберите масштаб" + "<br>" + 1
-        let inp = document.createElement('input');
-        inp.setAttribute('type', 'range');
-        inp.setAttribute('min', '1');
-        inp.setAttribute('max', '10');
-        inp.setAttribute('step', '1');
-        inp.setAttribute('value', '2');
-        inp.addEventListener('change', editForm);
-        form.appendChild(inp);
-
-        form.innerHTML += 10;
-
-        button1.appendChild(form);
+        let but1 = document.createElement('button');
+        but1.setAttribute('id', 'video');
+        but1.textContent = 'Video';
+        button1.appendChild(but1);
 
         /* создание кнопки аудио */
         let button2 = document.createElement('div');
         button2.setAttribute('id', 'sett-button2');
         let but2 = document.createElement('button');
         but2.setAttribute('id', 'audio');
-        but2.textContent = 'Смена темы';
-        but2.addEventListener('click', switchTheme);
+        but2.textContent = 'Audio';
         button2.appendChild(but2);
 
         /* создание кнопки back */

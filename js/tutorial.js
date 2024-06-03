@@ -1,3 +1,9 @@
+let data;
+fetch('data/scores.json')
+    .then(response => response.json())
+    .then(jsonData => data = jsonData);
+console.log(data);
+
 const SCALE = 2;
 const FRAME_WIDTH = 50;
 const FRAME_HEIGHT = 45;
@@ -26,7 +32,7 @@ let isPaused = false;
 let score = 0;
 let combo = 0;
 let comboTimer = COMBO_TIME;
-let cntEnemies = Math.floor(Math.random() * (8 - 1 + 1)) + 4;
+let cntEnemies = Math.floor(Math.random() * (2 - 1 + 1)) + 1;
 let cntKills = 0;
 
 class entity {
@@ -438,8 +444,23 @@ function gameLoop() {
 }
 
 function winGame() {
-    localStorage.setItem("themeColor", 'light');
-    window.location.href = "../scoreWindow.html";
+
+    if (data == 'undefined') {
+        console.log("Problem with data");
+    } else if (data != 'undefined') {
+
+    }
+
+    let array = [];
+    data = localStorage.getItem('scoreStorage');
+    array = data;
+    array.push([score]);
+
+    localStorage.setItem('scoreStorage', array);
+
+    console.log(array);
+
+    window.location.href = "../index.html";
 }
 
 function restart() {
@@ -571,8 +592,3 @@ function attackOfEnemyBatonCollision(enemy, frameCount) {
         attackOfEnemyBatonCollision(enemy, frameCount);
     }, FRAME_SPEED + 11);
 }
-/*
-cont.
-menu.
-exit.
-    */
