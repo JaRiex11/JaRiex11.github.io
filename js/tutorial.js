@@ -40,7 +40,6 @@ class player extends entity {
         this.imgWidth = imgWidth;//FRAME_WIDTH;
         this.imgHeight = imgHeight;//FRAME_HEIGHT;
         this.isDead = false;
-        this.lockAnimation = false;
         this.collisionBox = new collisionBox(this.x, this.y, WIDTH / 4, HEIGHT / 2, this.angle);
         // this.collisionOfWeapon = [
 
@@ -92,6 +91,7 @@ class enemy extends entity {
         this.imgWidth = frameWidth;
         this.imgHeight = frameHeight;
         this.isDead = false;
+        this.lockAnimation = false;
         this.collisionBox = new collisionBox(this.x, this.y, width / 4, height / 2, this.angle);
     }
 
@@ -99,6 +99,8 @@ class enemy extends entity {
         if (frameCount > 6) {
             frameCount = 0;
             this.lockAnimation = false;
+            this.imageX = 364;
+            this.imageY = 247;
             return;
         }
         this.imageX = 757 + (49 * frameCount);
@@ -106,6 +108,7 @@ class enemy extends entity {
         frameCount++;
         if (this.lockAnimation) {
             setTimeout(() => {
+                console.log(frameCount)
                 this.attackOfEnemyBatonAnimation(frameCount);
             }, FRAME_SPEED + 11, frameCount);
         }
@@ -261,7 +264,7 @@ function init() {
 
     pl = new player(policeman, FRAME_X, FRAME_Y, FRAME_WIDTH, FRAME_HEIGHT, WIDTH / 2, HEIGHT / 2, 0);
 
-    enemyList[0] = new enemy(prisoners, 1059, 62, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
+    enemyList[0] = new enemy(prisoners, 364, 247, FRAME_WIDTH, FRAME_HEIGHT, 100, 100, WIDTH, HEIGHT, 0);
     enemyList[1] = new enemy(prisoners, 364, 247, FRAME_WIDTH, FRAME_HEIGHT, 180, 100, WIDTH, HEIGHT, 0);
 
 
@@ -297,15 +300,14 @@ function drawFrame(ent) {
 
 function gameLoop() {
 
+    let mx, my;
+
     if (pl.isDead) {
         pl.imageX = 421;
         pl.imageY = 337;
         pl.imgWidth = 65;
         pl.imgHeight = 35;
     }
-
-    let mX = mouseX - pl.x - 24;
-    let mY = mouseY - pl.y - 24;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (keyPresses[87]) {
@@ -324,15 +326,6 @@ function gameLoop() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "black";
 
-    //вычисление угла поворота
-    var asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
-    var acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
-    var rotation = asin;
-
-    if (acos > Math.PI / 2.) {
-        rotation = -Math.PI - asin;
-    }
-
     //Рисовка и передвижение противников
     for (let i = 0; i < enemyList.length; i++) {
         if (enemyList[i].isDead) {
@@ -344,13 +337,15 @@ function gameLoop() {
             let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
             let pathLength = Math.sqrt(path.x * path.x + path.y * path.y);
 
-            if (pathLength > 70) {
+            if (pathLength > 50) {
                 enemyList[i].x += (MOVEMENT_SPEED - 1) * path.x / pathLength;
                 enemyList[i].y += (MOVEMENT_SPEED - 1) * path.y / pathLength;
                 enemyList[i].collisionBox.x += MOVEMENT_SPEED * path.x / pathLength;
                 enemyList[i].collisionBox.y += MOVEMENT_SPEED * path.y / pathLength;
             } else { //игрок в зоне досигаемости
+                console.log(enemyList[i].lockAnimation);
                 if (!enemyList[i].lockAnimation) {
+                    enemyList[i].lockAnimation = true;
                     enemyList[i].attackOfEnemyBatonAnimation(0);
                     attackOfEnemyBatonCollision(enemyList[i], 0);
                 }
@@ -358,9 +353,9 @@ function gameLoop() {
 
             mX = pl.x - enemyList[i].x - 24;
             mY = pl.y - enemyList[i].y - 24;
-            asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
-            acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
-            rotation = asin;
+            var asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
+            var acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
+            var rotation = asin;
             if (acos > Math.PI / 2.) {
                 rotation = -Math.PI - asin;
             }
@@ -379,6 +374,19 @@ function gameLoop() {
 
         drawFrame(enemyList[i]);
         ctx.restore();
+    }
+
+    mX = mouseX - pl.x - 24;
+    mY = mouseY - pl.y - 24;
+    //вычисление угла поворота
+    var asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
+    var acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
+    var rotation = asin;
+
+    if (acos > Math.PI / 2.) {
+        rotation = -Math.PI - asin;
+    }
+
     ctx.save();
     ctx.translate(pl.collisionBox.x + pl.collisionBox.width / 2, pl.collisionBox.y + pl.collisionBox.height / 2)
 
@@ -387,11 +395,7 @@ function gameLoop() {
 
     ctx.rotate(rotation); // Поворот холста
 
-    //black rectangle
-    ctx.fillRect(- pl.collisionBox.width / 2, -pl.collisionBox.height / 2, pl.collisionBox.width, pl.collisionBox.height);
-
     drawPlayer(pl);
-    //drawFrame(policeman, pl.playerImageX, pl.playerImageY, -MIDDLE_X, -MIDDLE_Y, );
 
     //rotating hitbox of attack;
     ctx.strokeStyle = "red";
@@ -415,18 +419,6 @@ function gameLoop() {
     ctx.fillStyle = "rgba(1, 0, 0, 0.5)";
     ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
     ctx.fillStyle = "black";
-
-    //hitbox of attack
-    ctx.strokeStyle = "red";
-    ctx.strokeRect(pl.x, pl.y + 25, 30 * SCALE, 16 * SCALE);
-
-    ctx.strokeRect(pl.x + 20, pl.y - 5, 20 * SCALE, 30 * SCALE);
-    ctx.strokeStyle = "black";
-
-    //enemy
-    ctx.fillRect(enemyList[0].collisionBox.x, enemyList[0].collisionBox.y, enemyList[0].collisionBox.width, enemyList[0].collisionBox.height);
-
-    }
 
     setTimeout(() => {
         window.requestAnimationFrame(gameLoop);
@@ -466,7 +458,7 @@ function attackOfEnemyBatonCollision(enemy, frameCount) {
     if (frameCount > 4) {
         for (let h in hitboxes) {
             if (hitboxes[h].collisionBox.collision(pl.collisionBox)) {
-                console.log("collision with enemy player");
+                console.log("collision with player");
                 pl.isDead = true;
             }
         }
