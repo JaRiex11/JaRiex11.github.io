@@ -269,10 +269,10 @@ function drawPlayer(pl) {
 
 function drawFrame(ent) {
     if (--testCounter == 0) {
-        console.log(ent);
+        console.log(ent.collisionBox);
     }
     ctx.drawImage(ent.imgName, ent.imageX, ent.imageY, ent.imgWidth, ent.imgHeight,
-        /*ent.x/* - (ent.width / 2) + 13, /*ent.y*/ - (ent.height / 2) + 22, ent.width, ent.height);
+        0 - ent.width / 2, 0 - ent.height / 2, ent.width, ent.height);
 }
 
 function gameLoop() {
@@ -360,8 +360,10 @@ function gameLoop() {
         let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
         let pathLength = Math.abs(path);
 
-        asin = Math.asin(pl.y / Math.sqrt(pl.y  * pl.y  + pl.x * pl.x));
-        acos = Math.acos(pl.x / Math.sqrt(pl.y  * pl.y  + pl.x * pl.x));
+        mX = pl.x - enemyList[i].x - 24;
+        mY = pl.y - enemyList[i].y - 24;
+        asin = Math.asin(mY / Math.sqrt(mY * mY + mX * mX));
+        acos = Math.acos(mX / Math.sqrt(mY * mY + mX * mX));
         rotation = asin;
         if (acos > Math.PI / 2.) {
             rotation = -Math.PI - asin;
