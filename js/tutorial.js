@@ -423,9 +423,9 @@ function gameLoop() {
     ctx.fillRect(pl.collisionBox.x, pl.collisionBox.y, pl.collisionBox.width, pl.collisionBox.height);
     ctx.fillStyle = "black";
 
-    if (pl.isDead) {
-        return;
-    }
+    // if (pl.isDead) {
+    //     return;
+    // }
     setTimeout(() => {
         window.requestAnimationFrame(gameLoop);
     }, FRAME_SPEED);
