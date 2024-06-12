@@ -32,7 +32,7 @@ let isPaused = false;
 let score = 0;
 let combo = 0;
 let comboTimer = COMBO_TIME;
-let cntEnemies = Math.floor(Math.random() * (2 - 1 + 1)) + 1;
+let cntEnemies = Math.floor(Math.random() * (8 - 1 + 1)) + 1;
 let cntKills = 0;
 
 class entity {
@@ -317,9 +317,9 @@ function gameLoop() {
         pl.imageX = 50;
         pl.imageY = 0;
         //uncensured
-        /*
+
         pl.imageX = 50;
-        pl.imageY = 45 * random_num;*/
+        pl.imageY = 45 * random_num;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -348,10 +348,10 @@ function gameLoop() {
             enemyList[i].imageY = 45;
 
             //uncensured
-            /*enemyList[i].imageX = 60 * random_num;
+            enemyList[i].imageX = 60 * random_num;
             enemyList[i].imageY = 45;
             enemyList[i].imgWidth = 60;
-            enemyList[i].imgHeight = 50;*/
+            enemyList[i].imgHeight = 50;
         } else {
             let path = new point(pl.x - enemyList[i].x, pl.y - enemyList[i].y);
             let pathLength = Math.sqrt(path.x * path.x + path.y * path.y);
@@ -453,12 +453,12 @@ function winGame() {
 
     let array = [];
     data = localStorage.getItem('scoreStorage');
-    array = data;
+    /*array = data;
     array.push([score]);
 
     localStorage.setItem('scoreStorage', array);
 
-    console.log(array);
+    console.log(array);*/
 
     window.location.href = "../index.html";
 }
